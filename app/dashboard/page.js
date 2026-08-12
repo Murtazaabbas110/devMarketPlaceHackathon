@@ -12,6 +12,24 @@ function EmptyState(){
 
 function ProjectCard({p}){
   return (
+    <a href={`/dashboard/${p.id}`} className="block">
+      <div className="p-4 bg-white rounded shadow hover:shadow-md transition">
+        <div className="flex items-center justify-between">
+          <div>
+            <h4 className="font-semibold">{p.name}</h4>
+            <div className="text-sm text-slate-500">{p.summary || 'No summary yet'}</div>
+          </div>
+          <div className="text-sm text-slate-600">{new Date(p.createdAt).toLocaleDateString()}</div>
+        </div>
+        <div className="mt-3 flex items-center gap-3">
+          <div className="text-xs bg-slate-100 px-2 py-1 rounded">Readiness: {p.readiness || 0}%</div>
+          <div className="text-xs bg-slate-100 px-2 py-1 rounded">Complexity: {p.complexity || 'Low'}</div>
+        </div>
+      </div>
+    </a>
+  )
+}
+  return (
     <div className="p-4 bg-white rounded shadow">
       <div className="flex items-center justify-between">
         <div>

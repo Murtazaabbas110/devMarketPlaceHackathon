@@ -7,13 +7,54 @@ export default function NewProject(){
   const router = useRouter()
 
   function create(){
+    // basic validation
+    if(!name.trim()){ alert('Please provide a project name'); return }
+    if(message.trim().length < 20){ alert('Please provide a longer client message (min 20 chars)'); return }
     const id = 'p_'+Date.now()
-    const p = {id,name,clientMessage:message,createdAt:new Date().toISOString(),readiness:10,complexity:'Low'}
+    const p = {id,name,clientMessage:message,createdAt:new Date().toISOString(),readiness:10,complexity:'Low',status:'created'}
     const raw = localStorage.getItem('sf_projects')
     const arr = raw? JSON.parse(raw):[]
     arr.unshift(p)
     localStorage.setItem('sf_projects',JSON.stringify(arr))
-    router.push('/dashboard')
+
+    // Call server-side analysis API
+    try{
+      fetch('/api/analyze', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id,clientMessage:message})})
+        .then(r=>r.json())
+        .then(res=>{
+          if(res?.ok && res.analysis){
+            // merge analysis into project and save
+            const raw2 = localStorage.getItem('sf_projects')
+            const arr2 = raw2? JSON.parse(raw2):[]
+            const idx = arr2.findIndex(x=>x.id===id)
+            if(idx>-1){
+              arr2[idx] = {...arr2[idx],...{
+                summary: res.analysis.summary,
+                objectives: res.analysis.objectives,
+               requirements: res.analysis.requirements,
+               ambiguities: res.analysis.ambiguities,
+               risks: res.analysis.risks,
+               assumptions: res.analysis.assumptions,
+               dependencies: res.analysis.dependencies,
+               complexity: res.analysis.complexity,
+               readiness: res.analysis.readiness
+              }}
+              localStorage.setItem('sf_projects',JSON.stringify(arr2))
+            }
+          } else {
+            alert('Analysis failed: '+(res?.error||'Unknown error'))
+          }
+          router.push('/dashboard')
+        })
+        .catch(err=>{
+          console.error('Analysis fetch error',err)
+          alert('Analysis failed, saved project locally.')
+          router.push('/dashboard')
+        })
+    }catch(err){
+      console.error(err)
+      router.push('/dashboard')
+    }
   }
 
   return (

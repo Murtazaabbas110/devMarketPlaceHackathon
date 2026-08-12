@@ -1,6 +1,10 @@
 ScopeFlow - Hackathon MVP
 
-Phase: Landing Page + Dashboard
+Phase: AI Project Analysis (Phase 4) - server-side analysis API added
+
+Completed Phases: Foundation + Authentication + Database Connection; Landing Page + Dashboard
+
+Project Creation: project creation (name + client message) saved in localStorage (demo).
 
 Run:
 
